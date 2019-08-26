@@ -26,9 +26,7 @@ void setup() {
   initializeBreadboard();
 
   //writeCurrentSensorType(buttonThatWasLastTouched);
-  buzzerTest(100, 1000);
-  buzzerTest(100, 2000);                                                                                                                                                                                                                                                                                                                 
-  buzzerTest(100, 500);
+  simpleMelody();
 }
 
 void loop() {
@@ -51,6 +49,7 @@ void printSensorsToSerial() {
   Serial.print( analogRead(VOLUMESENSOR) ); Serial.print( ", " );
   Serial.print( analogRead(VOLUMESENSOR) ); Serial.println();
 }
+
 
 
 // Maps actions to buttons (not pinnumbers!)
@@ -162,4 +161,28 @@ void buzzerTest(int duration, int tone) {
 int testButton(int buttonPin) {
   int status = digitalRead(buttonPin);
   return status;
+}
+
+void playTone(int tone, int duration) {
+  if(tone == 0) {  // PAUSE
+    delay(duration);
+    Serial.print("pause!");
+    Serial.println(duration);
+  } else {
+    for (long i = 0; i < duration * 1000L - 10000; i += tone * 2) {
+      digitalWrite(BUZZER, HIGH);
+      delayMicroseconds(tone);
+      digitalWrite(BUZZER, LOW);
+      delayMicroseconds(tone);
+    }
+    delayMicroseconds(10000);  // very short pause so the listener can tell notes apart.
+  }
+}
+
+void simpleMelody() {
+  playTone( 1911,   100 ); // play middle-C for 100 milliseconds;
+  playTone( 1517,   100 ); // play E for 100 milliseconds;
+  playTone( 1276,   100 ); // play G for 100 milliseconds;
+  playTone( 1517,   100 ); // play E for 100 milliseconds;
+  playTone( 1911,   200 ); // play C for 200 milliseconds;
 }
