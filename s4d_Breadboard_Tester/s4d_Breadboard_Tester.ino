@@ -10,22 +10,16 @@
 
  * * * * * * * * * * * * * * * * * * * * */
 
-
-
-
-
 #include "breadboard.h"
 
 int buttonThatWasLastTouched = 3;
 
 void setup() {
-  // Left Led
   Serial.begin(9600);
   Serial.println("setup");
 
   initializeBreadboard();
 
-  //writeCurrentSensorType(buttonThatWasLastTouched);
   simpleMelody();
 }
 
