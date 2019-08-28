@@ -1,7 +1,7 @@
 
 #include <Arduino.h>
 #include <U8g2lib.h>
-void initializeOLED();
+void initializeOLED(bool enable = true);
 
 
 /* * * * * * * * * * * * * * * * * * *
@@ -90,9 +90,14 @@ U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0,
 class OledClass {
 
   public:
+    bool enabled = true;
+  
     OledClass() {
     }
     void print(String text) {
+      if(!enabled) {
+        return;
+      }
       char tempCharBuffer[20];
       text.toCharArray(tempCharBuffer, 20);
       u8g2.clearBuffer();
@@ -119,7 +124,13 @@ class OledClass {
 
 OledClass OLED;
 
-void initializeOLED() {
+// enable argument is optional.
+// default value for enable = true (see declaration at top of this file)
+void initializeOLED(bool enable) {
+  if(!enable) {
+    OLED.enabled = false;
+    return;
+  }
   u8g2.begin();
   OLED.clear();
 }
