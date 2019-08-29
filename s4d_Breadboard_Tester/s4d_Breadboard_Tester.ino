@@ -36,12 +36,20 @@ void loop() {
 }
 
 void printSensorsToSerial() {
-  Serial.print( analogRead(POTENTIOMETER) ); Serial.print( ", " );
-  Serial.print( digitalRead(BUTTON1) ); Serial.print( ", " );
-  Serial.print( digitalRead(BUTTON2) ); Serial.print( ", " );
-  Serial.print( analogRead(LIGHTSENSOR) ); Serial.print( ", " );
-  Serial.print( analogRead(VOLUMESENSOR) ); Serial.print( ", " );
-  Serial.print( analogRead(VOLUMESENSOR) ); Serial.println();
+  Serial.print("pm: "); print4chars( analogRead(POTENTIOMETER) ); Serial.print( ", " );
+  Serial.print("b1: "); Serial.print( digitalRead(BUTTON1) ); Serial.print( ", " );
+  Serial.print("b2: "); Serial.print( digitalRead(BUTTON2) ); Serial.print( ", " );
+  Serial.print("ls: "); print4chars( analogRead(LIGHTSENSOR) ); Serial.print( ", " );
+  Serial.print("vs: "); print4chars( analogRead(VOLUMESENSOR) ); Serial.print( ", " );
+  Serial.print("ms: "); print4chars( analogRead(MAGNETSENSOR) ); Serial.println();
+}
+
+void print4chars(int value) {
+  String result = String(value);
+  if(value < 10)   { Serial.print(" "); } 
+  if(value < 100)  { Serial.print(" "); } 
+  if(value < 1000) { Serial.print(" "); } 
+  Serial.print(result);
 }
 
 
