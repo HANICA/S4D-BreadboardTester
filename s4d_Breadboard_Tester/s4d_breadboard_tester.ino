@@ -10,7 +10,7 @@
 
  * * * * * * * * * * * * * * * * * * * * */
 
-#include "breadboard.h"
+#include "s4d_breadboard.h"
 
 int buttonThatWasLastTouched = 3;
 
