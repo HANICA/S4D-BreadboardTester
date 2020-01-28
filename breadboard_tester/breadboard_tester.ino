@@ -90,7 +90,7 @@ int theButtonThatWasTouched() {
   int buttonTouched = -1;
   if (testButton(BUTTON2) == 1 && testButton(BUTTON1) == 1) {
     Serial.println("both were Pressed");
-    buttonTouched = 3;
+    buttonTouched = 1;
   }
   else if (testButton(BUTTON1) == 1) {
     Serial.println("first button Pressed");
@@ -98,7 +98,7 @@ int theButtonThatWasTouched() {
   }
   else if (testButton(BUTTON2) == 1) {
     Serial.println("second button Pressed");
-    buttonTouched = 1;
+    buttonTouched = 3;
   }
 
   return buttonTouched;
