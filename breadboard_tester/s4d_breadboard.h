@@ -71,8 +71,17 @@ void initializeBreadboard() {
 
   The code below creates the following
   commands:
-  OLED.print( value )
-  OLED.clear()
+    
+    OLED.clear()
+    
+    OLED.print( value )  
+    OLED.print( string, value )       // you can add a label or message before the value;
+
+    OLED.printTop( value )            // prints a smaller line in the upper half of the screen;
+    OLED.printTop( string, value )    // you can add a label or message before the value;
+
+    OLED.printBottom( value )         // prints a smaller line in the lower half of the screen;
+    OLED.printBottom( string, value ) // you can add a label or message before the value;
 
   The value for OLED.print() can be 
   a text or a number.
@@ -91,6 +100,7 @@ class OledClass {
 
   public:
     bool enabled = true;
+    bool lastPrintWasSmall = false; // if last print was half screen, next small print should clear only half the screen.
   
     OledClass() {
     }
@@ -98,6 +108,7 @@ class OledClass {
       if(!enabled) {
         return;
       }
+      lastPrintWasSmall = false;
       char tempCharBuffer[20];
       text.toCharArray(tempCharBuffer, 20);
       u8g2.clearBuffer();
@@ -113,14 +124,74 @@ class OledClass {
       String text = String(number);
       print(text);
     }
-    void print(String label, int number) {
-      String text = String(label) + ": " + String(number);
+    void print(String label, long number) {
+      String text = String(label) + " " + String(number);
       print(text);
+    }
+    void print(String label, double number) {
+      String text = String(label) + " " + String(number);
+      print(text);
+    }
+    void printSmallLine(String text, int line) {
+      char tempCharBuffer[30];
+      text.toCharArray(tempCharBuffer, 30);
+      if( ! lastPrintWasSmall ) {   
+        // clear the entire screen
+        u8g2.clearBuffer();
+      } else {
+        // just clear the line we're going to print on
+        u8g2.setDrawColor(0);
+        u8g2.drawBox( 0, 16*line, 128, 16);
+        u8g2.setDrawColor(1);
+      }
+      u8g2.setFont(u8g2_font_helvR10_tr);
+      u8g2.drawStr(0, 16*(line+1)-1, tempCharBuffer);
+      u8g2.sendBuffer();
+      lastPrintWasSmall = true; 
+    }
+    void printTop(String text) {
+      printSmallLine( text, 0 );
+    }
+    void printTop(int number) {
+      String text = String(number);
+      printTop(text);
+    }
+    void printTop(double number ) {
+      String text = String(number);
+      printTop(text);
+    }
+    void printTop(String label, int number) {
+      String text = String(label) + " " + String(number);
+      printTop(text);
+    }
+    void printTop(String label, double number) {
+      String text = String(label) + " " + String(number);
+      printTop(text);
+    }
+    void printBottom(String text) {
+      printSmallLine( text, 1 );
+    }
+    void printBottom(int number ) {
+      String text = String(number);
+      printBottom(text);
+    }
+    void printBottom(double number ) {
+      String text = String(number);
+      printBottom(text);
+    }
+    void printBottom(String label, int number) {
+      String text = String(label) + " " + String(number);
+      printBottom(text);
+    }
+    void printBottom(String label, double number) {
+      String text = String(label) + " " + String(number);
+      printBottom(text);
     }
     void clear() {
       print("");
     }
 };
+
 
 OledClass OLED;
 
