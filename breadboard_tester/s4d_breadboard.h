@@ -72,9 +72,9 @@ void initializeBreadboard() {
   The code below creates the following
   commands:
     
-    OLED.clear()
+    OLED.clear()                      // removes all pixels from the screen;
     
-    OLED.print( value )  
+    OLED.print( value )               // shows a value (text, number) on the screen;
     OLED.print( string, value )       // you can add a label or message before the value;
 
     OLED.printTop( value )            // prints a smaller line in the upper half of the screen;
@@ -113,6 +113,7 @@ class OledClass {
       text.toCharArray(tempCharBuffer, 20);
       u8g2.clearBuffer();
       u8g2.setFont(u8g2_font_helvR14_tr);
+      u8g2.setFontPosBaseline();
       u8g2.drawStr(0, 20, tempCharBuffer);
       u8g2.sendBuffer();
     }
@@ -132,7 +133,7 @@ class OledClass {
       String text = String(label) + " " + String(number);
       print(text);
     }
-    void printSmallLine(String text, int line) {
+    void printSmallLine(String text, int line) {  // line=0: top & line=1: bottom
       char tempCharBuffer[30];
       text.toCharArray(tempCharBuffer, 30);
       if( ! lastPrintWasSmall ) {   
@@ -145,7 +146,9 @@ class OledClass {
         u8g2.setDrawColor(1);
       }
       u8g2.setFont(u8g2_font_helvR10_tr);
-      u8g2.drawStr(0, 16*(line+1)-1, tempCharBuffer);
+      u8g2.setFontPosBottom();
+      int drawPos = line ? 32 : 15;
+      u8g2.drawStr(0, drawPos, tempCharBuffer);
       u8g2.sendBuffer();
       lastPrintWasSmall = true; 
     }
