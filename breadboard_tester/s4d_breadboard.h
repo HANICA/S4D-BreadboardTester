@@ -125,7 +125,7 @@ class OledClass {
       String text = String(number);
       print(text);
     }
-    void print(String label, long number) {
+    void print(String label, int number) {
       String text = String(label) + " " + String(number);
       print(text);
     }
