@@ -125,12 +125,16 @@ class OledClass {
       String text = String(number);
       print(text);
     }
+    void print(String label, String value) {
+      String text = label + " " + value;
+      print(text);
+    }
     void print(String label, int number) {
-      String text = String(label) + " " + String(number);
+      String text = label + " " + String(number);
       print(text);
     }
     void print(String label, double number) {
-      String text = String(label) + " " + String(number);
+      String text = label + " " + String(number);
       print(text);
     }
     void printSmallLine(String text, int line) {  // line=0: top & line=1: bottom
@@ -163,12 +167,16 @@ class OledClass {
       String text = String(number);
       printTop(text);
     }
+    void printTop(String label, String value) {
+      String text = label + " " + value;
+      printTop(text);
+    }
     void printTop(String label, int number) {
-      String text = String(label) + " " + String(number);
+      String text = label + " " + String(number);
       printTop(text);
     }
     void printTop(String label, double number) {
-      String text = String(label) + " " + String(number);
+      String text = label + " " + String(number);
       printTop(text);
     }
     void printBottom(String text) {
@@ -182,12 +190,16 @@ class OledClass {
       String text = String(number);
       printBottom(text);
     }
+    void printBottom(String label, String value) {
+      String text = label + " " + value;
+      printBottom(text);
+    }
     void printBottom(String label, int number) {
-      String text = String(label) + " " + String(number);
+      String text = label + " " + String(number);
       printBottom(text);
     }
     void printBottom(String label, double number) {
-      String text = String(label) + " " + String(number);
+      String text = label + " " + String(number);
       printBottom(text);
     }
     void clear() {
