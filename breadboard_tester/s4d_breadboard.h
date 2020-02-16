@@ -1,8 +1,6 @@
 
 #include <Arduino.h>
 #include <U8g2lib.h>
-void initializeOLED(bool enable = true);
-
 
 /* * * * * * * * * * * * * * * * * * *
    
@@ -32,17 +30,31 @@ const int LED_RED = 11;        // analog and digital output
 
 /* * * * * * * * * * * * * * * * * * *
 
-  The following code initializes 
-  all pins for use with the breadboard.
+  Use the following code to initialize
+  the breadboard.
+
+  Use either 
+    initializeBreadboard(), or
+    initializePins() 
 
   Always call initializeBreadboard()
   in your setup() function when using
-  the breadboard
+  the breadboard including the OLED.
+
+  If you can do without the OLED,
+  initializeBreadboardPins() will work
+  for all the rest, and results in 
+  (sometimes seriously) faster 
+  compile times.
 
 * * * * * * * * * * * * * * * * * * * */
 
-void initializeBreadboard() {
+void initializeBreadboardPins();
+void initializeOLED();
+void initializeBreadboard();
 
+
+void initializeBreadboardPins() {
   pinMode(BUZZER, OUTPUT);
   pinMode(LED_BLUE, OUTPUT);
   pinMode(LED_GREEN, OUTPUT);
@@ -63,6 +75,10 @@ void initializeBreadboard() {
   digitalWrite(LED_RED, LOW);
 
   Serial.begin(9600);
+}
+
+void initializeBreadboard() {
+  initializeBreadboardPins();
   initializeOLED();
 }
 
@@ -97,17 +113,17 @@ U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0,
     /* data=*/  SDA);
 
 class OledClass {
+  
+  private:
+    bool lastPrintWasSmall = false; // if last print was half screen, 
+                                    // next small print should clear 
+                                    // only half the screen.
 
   public:
-    bool enabled = true;
-    bool lastPrintWasSmall = false; // if last print was half screen, next small print should clear only half the screen.
-  
+ 
     OledClass() {
     }
     void print(String text) {
-      if(!enabled) {
-        return;
-      }
       lastPrintWasSmall = false;
       char tempCharBuffer[20];
       text.toCharArray(tempCharBuffer, 20);
@@ -210,13 +226,7 @@ class OledClass {
 
 OledClass OLED;
 
-// enable argument is optional.
-// default value for enable = true (see declaration at top of this file)
-void initializeOLED(bool enable) {
-  if(!enable) {
-    OLED.enabled = false;
-    return;
-  }
+void initializeOLED() {
   u8g2.begin();
   OLED.clear();
 }
