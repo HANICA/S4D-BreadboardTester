@@ -137,10 +137,6 @@ class OledClass {
       String text = String(number);
       print(text);
     }
-    void print(long number ) {
-      String text = String(number);
-      print(text);
-    }
     void print(double number ) {
       String text = String(number);
       print(text);
@@ -150,10 +146,6 @@ class OledClass {
       print(text);
     }
     void print(String label, int number) {
-      String text = label + " " + String(number);
-      print(text);
-    }
-    void print(String label, long number) {
       String text = label + " " + String(number);
       print(text);
     }
@@ -187,10 +179,6 @@ class OledClass {
       String text = String(number);
       printTop(text);
     }
-    void printTop(long number) {
-      String text = String(number);
-      printTop(text);
-    }
     void printTop(double number ) {
       String text = String(number);
       printTop(text);
@@ -200,10 +188,6 @@ class OledClass {
       printTop(text);
     }
     void printTop(String label, int number) {
-      String text = label + " " + String(number);
-      printTop(text);
-    }
-    void printTop(String label, long number) {
       String text = label + " " + String(number);
       printTop(text);
     }
@@ -218,33 +202,21 @@ class OledClass {
       String text = String(number);
       printBottom(text);
     }
-    void printBottom(long number ) {
-      String text = String(number);
-      printBottom(text);
-    }
-    void printBottom(unsigned long number ) {
-      String text = String(number);
-      printBottom(text);
-    }
     void printBottom(double number ) {
       String text = String(number);
       printBottom(text);
     }
     void printBottom(String label, String value) {
       String text = label + " " + value;
-      printSmallLine( text, 1 );
+      printBottom(text);
     }
     void printBottom(String label, int number) {
-      printBottom(label,String(number));
-    }
-    void printBottom(String label, long number) {
-      printBottom(label,String(number));
-    }
-    void printBottom(String label, unsigned long number) {
-      printBottom(label,String(number));
+      String text = label + " " + String(number);
+      printBottom(text);
     }
     void printBottom(String label, double number) {
-      printBottom(label,String(number));
+      String text = label + " " + String(number);
+      printBottom(text);
     }
     void clear() {
       print("");
