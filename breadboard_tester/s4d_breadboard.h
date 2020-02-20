@@ -1,6 +1,12 @@
+#ifndef S4D_BREADBOARD_H
+#define S4D_BREADBOARD_H
 
 #include <Arduino.h>
+
+#ifndef NO_OLED         
 #include <U8g2lib.h>
+void initializeOLED();
+#endif
 
 /* * * * * * * * * * * * * * * * * * *
    
@@ -33,28 +39,15 @@ const int LED_RED = 11;        // analog and digital output
   Use the following code to initialize
   the breadboard.
 
-  Use either 
-    initializeBreadboard(), or
-    initializePins() 
+    initializeBreadboard()
 
   Always call initializeBreadboard()
   in your setup() function when using
-  the breadboard including the OLED.
-
-  If you can do without the OLED,
-  initializeBreadboardPins() will work
-  for all the rest, and results in 
-  (sometimes seriously) faster 
-  compile times.
+  the breadboard.
 
 * * * * * * * * * * * * * * * * * * * */
 
-void initializeBreadboardPins();
-void initializeOLED();
-void initializeBreadboard();
-
-
-void initializeBreadboardPins() {
+void initializeBreadboard() {
   pinMode(BUZZER, OUTPUT);
   pinMode(LED_BLUE, OUTPUT);
   pinMode(LED_GREEN, OUTPUT);
@@ -75,35 +68,57 @@ void initializeBreadboardPins() {
   digitalWrite(LED_RED, LOW);
 
   Serial.begin(9600);
-}
-
-void initializeBreadboard() {
-  initializeBreadboardPins();
+  tone(BUZZER,440);
+  delay(50);
+  noTone(BUZZER);
+#ifndef NO_OLED 
   initializeOLED();
+#endif
 }
-
 
 /* * * * * * * * * * * * * * * * * * *
 
   The code below creates the following
   commands:
     
-    OLED.clear()                      // removes all pixels from the screen;
+    OLED.clear()                      // Removes all pixels from the screen.
+    OLED.copyToSerial()               // Everything printed to OLED will also be sent to the
+                                      // Serial Monitor.
     
-    OLED.print( value )               // shows a value (text, number) on the screen;
-    OLED.print( string, value )       // you can add a label or message before the value;
+    OLED.print( value )               // Shows a value (text, number) on the screen.
+    OLED.print( string, value )       // You can add a label or message before the value.
 
-    OLED.printTop( value )            // prints a smaller line in the upper half of the screen;
-    OLED.printTop( string, value )    // you can add a label or message before the value;
+    OLED.printTop( value )            // Prints a smaller line in the upper half of the screen.
+    OLED.printTop( string, value )    // You can add a label or message before the value.
 
-    OLED.printBottom( value )         // prints a smaller line in the lower half of the screen;
-    OLED.printBottom( string, value ) // you can add a label or message before the value;
+    OLED.printBottom( value )         // Prints a smaller line in the lower half of the screen.
+    OLED.printBottom( string, value ) // You can add a label or message before the value.
 
   The value for OLED.print() can be 
   a text or a number.
-    
+
+ * * * * * * * * * * * * * * * * * * *
+
+  If you don't use the OLED, define
+  the NO_OLED macro just before 
+  including this header file. 
+  Like this:
+
+  #define NO_OLED
+  #include "s4d_breadboard.h"
+
+  This will exclude all OLED code 
+  from the program, which can speed 
+  up compile times, and save a lot 
+  of memory.
+  The OLED commands above will still
+  work. They'll simply print to the
+  Serial Monitor, as if 
+  OLED.copyToSerial() had been called.
+      
  * * * * * * * * * * * * * * * * * * */
 
+#ifndef NO_OLED 
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 
 // This is some ugly code, required to get the display to work.
@@ -111,11 +126,17 @@ U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0,
     /* reset=*/ U8X8_PIN_NONE,
     /* clock=*/ SCL,
     /* data=*/  SDA);
+#endif
 
 class OledClass {
   
   private:
-    bool mustCopyToSerial = false;
+#ifndef NO_OLED   
+    bool mustCopyToSerial  = false;
+#else    
+    bool mustCopyToSerial  = true;  // if OLED disabled, send OLED output 
+                                    // to Serial Monitor.
+#endif
     bool lastPrintWasSmall = false; // if last print was half screen, 
                                     // next small print should clear 
                                     // only half the screen.
@@ -159,6 +180,7 @@ class OledClass {
       Serial.println("+");                        
     }
     void print(String text) {
+#ifndef NO_OLED 
       char tempCharBuffer[20];
       text.toCharArray(tempCharBuffer, 20);
       u8g2.clearBuffer();
@@ -166,6 +188,7 @@ class OledClass {
       u8g2.setFontPosBaseline();
       u8g2.drawStr(0, 20, tempCharBuffer);
       u8g2.sendBuffer();
+#endif
       lastPrintWasSmall = false;
       lastLines[0] = text; 
       lastLines[1] = "";
@@ -200,6 +223,7 @@ class OledClass {
       print(label, String(number));
     }
     void printSmallLine(String text, int line) {  // line=0: top & line=1: bottom
+#ifndef NO_OLED 
       char tempCharBuffer[30];
       text.toCharArray(tempCharBuffer, 30);
       if( lastPrintWasSmall ) {
@@ -210,16 +234,18 @@ class OledClass {
       } else {   
         // clear the entire screen
         u8g2.clearBuffer();
-        lastLines[0] = ""; 
-        lastLines[1] = ""; 
       }
       u8g2.setFont(u8g2_font_helvR10_tr);
       u8g2.setFontPosBottom();
       int drawPos = line ? 32 : 15;
       u8g2.drawStr(0, drawPos, tempCharBuffer);
       u8g2.sendBuffer();
-      lastPrintWasSmall = true; 
+#endif
       lastLines[line] = text; 
+      if( ! lastPrintWasSmall ) {
+        lastLines[1-line] = ""; 
+      }
+      lastPrintWasSmall = true; 
       printToSerial();           
     }
     void printTop(String text) {
@@ -293,7 +319,9 @@ class OledClass {
 OledClass OLED;
 
 void initializeOLED() {
+#ifndef NO_OLED 
   u8g2.begin();
+#endif
   OLED.clear();
 }
 
@@ -352,3 +380,6 @@ class VolumeSensorClass {
 };
 
 VolumeSensorClass VolumeSensor;
+
+
+#endif // S4D_BREADBOARD_H
