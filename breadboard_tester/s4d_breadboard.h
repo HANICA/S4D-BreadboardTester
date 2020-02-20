@@ -115,16 +115,50 @@ U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0,
 class OledClass {
   
   private:
+    bool mustCopyToSerial = false;
     bool lastPrintWasSmall = false; // if last print was half screen, 
                                     // next small print should clear 
                                     // only half the screen.
-
+    String lastLines[2] = {"",""};
+    
   public:
  
     OledClass() {
     }
+    void copyToSerial() {
+      mustCopyToSerial = true;
+    }
+    void printToSerial() {
+      if( ! mustCopyToSerial ) {
+        return;
+      }
+      int boxLength = max( lastLines[0].length(), lastLines[1].length() ) + 2;
+      Serial.print( "+" );
+      for(int i=0;i<boxLength;i++) {
+        Serial.print('-');
+      }
+      Serial.println("+");
+      Serial.print("| ");
+      Serial.print( lastLines[0] );
+      for(int i=0;i<boxLength-lastLines[0].length()-1;i++) {
+        Serial.print(' ');
+      }
+      Serial.println("|");
+      if( lastPrintWasSmall ) {
+        Serial.print("| ");
+        Serial.print( lastLines[1] );
+        for(int i=0;i<boxLength-lastLines[1].length()-1;i++) {
+          Serial.print(' ');
+        }
+        Serial.println("|");
+      }
+      Serial.print( "+" );
+      for(int i=0;i<boxLength;i++) {
+        Serial.print('-');
+      }
+      Serial.println("+");                        
+    }
     void print(String text) {
-      lastPrintWasSmall = false;
       char tempCharBuffer[20];
       text.toCharArray(tempCharBuffer, 20);
       u8g2.clearBuffer();
@@ -132,6 +166,10 @@ class OledClass {
       u8g2.setFontPosBaseline();
       u8g2.drawStr(0, 20, tempCharBuffer);
       u8g2.sendBuffer();
+      lastPrintWasSmall = false;
+      lastLines[0] = text; 
+      lastLines[1] = "";
+      printToSerial();
     }
     void print(int number ) {
       print(String(number));
@@ -164,14 +202,16 @@ class OledClass {
     void printSmallLine(String text, int line) {  // line=0: top & line=1: bottom
       char tempCharBuffer[30];
       text.toCharArray(tempCharBuffer, 30);
-      if( ! lastPrintWasSmall ) {   
-        // clear the entire screen
-        u8g2.clearBuffer();
-      } else {
+      if( lastPrintWasSmall ) {
         // just clear the line we're going to print on
         u8g2.setDrawColor(0);
         u8g2.drawBox( 0, 16*line, 128, 16);
         u8g2.setDrawColor(1);
+      } else {   
+        // clear the entire screen
+        u8g2.clearBuffer();
+        lastLines[0] = ""; 
+        lastLines[1] = ""; 
       }
       u8g2.setFont(u8g2_font_helvR10_tr);
       u8g2.setFontPosBottom();
@@ -179,6 +219,8 @@ class OledClass {
       u8g2.drawStr(0, drawPos, tempCharBuffer);
       u8g2.sendBuffer();
       lastPrintWasSmall = true; 
+      lastLines[line] = text; 
+      printToSerial();           
     }
     void printTop(String text) {
       printSmallLine( text, 0 );
