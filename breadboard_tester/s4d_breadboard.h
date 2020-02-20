@@ -134,24 +134,32 @@ class OledClass {
       u8g2.sendBuffer();
     }
     void print(int number ) {
-      String text = String(number);
-      print(text);
+      print(String(number));
+    }
+    void print(long number ) {
+      print(String(number));
+    }
+    void print(unsigned long number ) {
+      print(String(number));
     }
     void print(double number ) {
-      String text = String(number);
-      print(text);
+      print(String(number));
     }
     void print(String label, String value) {
       String text = label + " " + value;
       print(text);
     }
     void print(String label, int number) {
-      String text = label + " " + String(number);
-      print(text);
+      print(label, String(number));
+    }
+    void print(String label, long number) {
+      print(label, String(number));
+    }
+    void print(String label, unsigned long number) {
+      print(label, String(number));
     }
     void print(String label, double number) {
-      String text = label + " " + String(number);
-      print(text);
+      print(label, String(number));
     }
     void printSmallLine(String text, int line) {  // line=0: top & line=1: bottom
       char tempCharBuffer[30];
@@ -176,47 +184,63 @@ class OledClass {
       printSmallLine( text, 0 );
     }
     void printTop(int number) {
-      String text = String(number);
-      printTop(text);
+      printSmallLine( String(number), 0 );
+    }
+    void printTop(long number) {
+      printSmallLine( String(number), 0 );
+    }
+    void printTop(unsigned long number) {
+      printSmallLine( String(number), 0 );
     }
     void printTop(double number ) {
-      String text = String(number);
-      printTop(text);
+      printSmallLine( String(number), 0 );
     }
     void printTop(String label, String value) {
       String text = label + " " + value;
-      printTop(text);
+      printSmallLine( text, 0 );
     }
     void printTop(String label, int number) {
-      String text = label + " " + String(number);
-      printTop(text);
+      printTop(label, String(number));
+    }
+    void printTop(String label, long number) {
+      printTop(label, String(number));
+    }
+    void printTop(String label, unsigned long number) {
+      printTop(label, String(number));
     }
     void printTop(String label, double number) {
-      String text = label + " " + String(number);
-      printTop(text);
+      printTop(label, String(number));
     }
     void printBottom(String text) {
       printSmallLine( text, 1 );
     }
     void printBottom(int number ) {
-      String text = String(number);
-      printBottom(text);
+      printSmallLine(String(number), 1);
+    }
+    void printBottom(long number ) {
+      printSmallLine(String(number), 1);
+    }
+    void printBottom(unsigned long number) {
+      printSmallLine(String(number), 1);
     }
     void printBottom(double number ) {
-      String text = String(number);
-      printBottom(text);
+      printSmallLine(String(number), 1);
     }
     void printBottom(String label, String value) {
       String text = label + " " + value;
-      printBottom(text);
+      printSmallLine(text, 1);
     }
     void printBottom(String label, int number) {
-      String text = label + " " + String(number);
-      printBottom(text);
+      printBottom(label, String(number));
+    }
+    void printBottom(String label, long number) {
+      printBottom(label, String(number));
+    }
+    void printBottom(String label, unsigned long number) {
+      printBottom(label, String(number));
     }
     void printBottom(String label, double number) {
-      String text = label + " " + String(number);
-      printBottom(text);
+      printBottom(label, String(number));
     }
     void clear() {
       print("");
