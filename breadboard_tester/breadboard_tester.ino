@@ -12,6 +12,7 @@
 
 #include "s4d_breadboard.h"
 
+bool LEDsRunning = false;
 
 void setup() {
   initializeBreadboard();
@@ -23,26 +24,17 @@ void setup() {
 }
 
 void loop() {
-  static int currentSensor = MAGNETSENSOR;
-  int selectedSensor = sensorSelectedByButton();
-  if (selectedSensor && selectedSensor != currentSensor) {
-    currentSensor = selectedSensor;
-    writeCurrentSensorType(currentSensor);
-    buzzerTest(30,1000);
-    delay(300);
-  }
-  performActionBasedOn(currentSensor);
-  mapPotToLEDBrightness();
-  // printSensorsToSerial();
+  showButtonStates();
+  showSensorValues();
+  mapPotToLEDs();
+  printSensorsToSerial();
 }
 
 void printSensorsToSerial() {
-  Serial.print("pm: "); print4chars( analogRead(POTENTIOMETER) ); Serial.print( ", " );
-  Serial.print("b1: "); Serial.print( digitalRead(BUTTON1) );     Serial.print( ", " );
-  Serial.print("b2: "); Serial.print( digitalRead(BUTTON2) );     Serial.print( ", " );
-  Serial.print("ls: "); print4chars( analogRead(LIGHTSENSOR) );   Serial.print( ", " );
-  Serial.print("vs: "); print4chars( analogRead(VOLUMESENSOR) );  Serial.print( ", " );
-  Serial.print("ms: "); print4chars( analogRead(MAGNETSENSOR) );  Serial.println();
+  Serial.print("potm: "); print4chars( analogRead(POTENTIOMETER) ); Serial.print( ", " );
+  Serial.print("but1: "); Serial.print( digitalRead(BUTTON1) );     Serial.print( ", " );
+  Serial.print("but2: "); Serial.print( digitalRead(BUTTON2) );     Serial.print( ", " );
+  Serial.print("magn: "); print4chars( analogRead(MAGNETSENSOR) );  Serial.println();
 }
 
 void print4chars(int value) {
@@ -53,52 +45,38 @@ void print4chars(int value) {
   Serial.print(result);
 }
 
-// Maps actions to buttons (not pinnumbers!)
-void performActionBasedOn(int sensorPin) {
-  switch (sensorPin) {
-    case VOLUMESENSOR:
-      OLED.printBottom("volume", VolumeSensor.read());
-      break;
-    case LIGHTSENSOR:
-      OLED.printBottom("light", analogRead(LIGHTSENSOR));
-      break;
-    case MAGNETSENSOR:
-      OLED.printBottom("magnet", analogRead(MAGNETSENSOR));
-      break;
-  }
+void showSensorValues() {
+  OLED.printTop("potentiometer:", analogRead(POTENTIOMETER));
+  OLED.printBottom("magnet sensor:", analogRead(MAGNETSENSOR));
 }
 
-void writeCurrentSensorType(int sensorPin) {
-  switch (sensorPin) {
-    case VOLUMESENSOR:
-      OLED.print("Volume sensor");
-      break;
-    case LIGHTSENSOR:
-      OLED.print("Light sensor");
-      break;
-    case MAGNETSENSOR:
-      OLED.print("Magnet sensor");
-      break;
-  }
-}
-
-// Returns a number corresponding with the button that was touched.
-// 0 = left, 1 = middle, 2 = right, -1 on no touch
-int sensorSelectedByButton() {
-  int selectedSensor = 0;
-  if (testButton(BUTTON2) == 1 && testButton(BUTTON1) == 1) {
+int showButtonStates() {
+  if (testButton(BUTTON1) && testButton(BUTTON2)) {
+    buzzerTest(30,1000);
+    OLED.print("Both buttons");
     Serial.println("Both buttons pressed.");
-    selectedSensor = VOLUMESENSOR;
+    delay(20);
+    // wait for any button release
+    while(testButton(BUTTON1) && testButton(BUTTON2)) {}
   }
-  else if (testButton(BUTTON1) == 1) {
+  else if (testButton(BUTTON1)) {
+    buzzerTest(30,1000);
+    LEDsRunning = true;
+    OLED.print("LEDs on");
     Serial.println("First button pressed.");
-    selectedSensor = LIGHTSENSOR;
+    delay(20);
+    // wait for button 1 release
+    while(testButton(BUTTON1)) {}
   }
-  else if (testButton(BUTTON2) == 1) {
+  else if (testButton(BUTTON2)) {
+    buzzerTest(30,1000);
+    LEDsRunning = false;
+    OLED.print("LEDs off");
     Serial.println("Second button pressed.");
-    selectedSensor = MAGNETSENSOR;
+    delay(20);
+    // wait for button 2 release
+    while(testButton(BUTTON2)) {}
   }
-  return selectedSensor;
 }
 
 void switchToLED( int ledPin ) {
@@ -108,14 +86,19 @@ void switchToLED( int ledPin ) {
   analogWrite(LED_RED,    ledPin == LED_RED ?    analogRead(POTENTIOMETER) / 4 : 0 );
 }
 
-// Adjusts the brightness of the LED based on the potentiometer
-void mapPotToLEDBrightness() {
+void mapPotToLEDs() {
+  if( !LEDsRunning ) {
+    digitalWrite(LED_GREEN,  0 );
+    digitalWrite(LED_BLUE,   0 );
+    digitalWrite(LED_YELLOW, 0 );
+    digitalWrite(LED_RED,    0 );
+    return;
+  }
   static int prevPhase = 0;
   long phase = (millis() / 150) % 6;
   if( phase == prevPhase ) {
     return;
   }
-  OLED.printTop("potentiometer", analogRead(POTENTIOMETER));
   prevPhase = phase;
   switch(phase) {
     case 0:
@@ -140,8 +123,6 @@ void mapPotToLEDBrightness() {
   }
 }
 
-// Procedure to test the buzzer
-// duration in milliseconds
 void buzzerTest(int duration, int tone) {
   Serial.println("Buzzer...");
   for (int i = 0; i < duration; i++) {
@@ -152,7 +133,6 @@ void buzzerTest(int duration, int tone) {
   }
 }
 
-// Function that returns the status of a button
 int testButton(int buttonPin) {
   int status = digitalRead(buttonPin);
   return status;
@@ -161,8 +141,6 @@ int testButton(int buttonPin) {
 void playTone(int tone, int duration) {
   if(tone == 0) {  // PAUSE
     delay(duration);
-    Serial.print("pause!");
-    Serial.println(duration);
   } else {
     for (long i = 0; i < duration * 1000L - 10000; i += tone * 2) {
       digitalWrite(BUZZER, HIGH);
