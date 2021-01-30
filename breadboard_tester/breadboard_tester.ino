@@ -26,7 +26,7 @@ void setup() {
 void loop() {
   showButtonStates();
   showSensorValues();
-  mapPotToLEDs();
+  animateLEDs();
   printSensorsToSerial();
 }
 
@@ -62,6 +62,7 @@ int showButtonStates() {
   else if (testButton(BUTTON1)) {
     playTone(440,30);
     LEDsRunning = true;
+    animateLEDs();
     OLED.print("LEDs on");
     Serial.println("First button pressed.");
     delay(20);
@@ -72,6 +73,7 @@ int showButtonStates() {
     playTone(440,30);
     LEDsRunning = false;
     OLED.print("LEDs off");
+    animateLEDs();
     Serial.println("Second button pressed.");
     delay(20);
     // wait for button 2 release
@@ -79,19 +81,19 @@ int showButtonStates() {
   }
 }
 
+const int LED_ALL  = 100;
+const int LED_NONE = 101;
+
 void switchToLED( int ledPin ) {
-  analogWrite(LED_GREEN,  ledPin == LED_GREEN ?  analogRead(POTENTIOMETER) / 4 : 0 );
-  analogWrite(LED_BLUE,   ledPin == LED_BLUE ?   analogRead(POTENTIOMETER) / 4 : 0 );
-  analogWrite(LED_YELLOW, ledPin == LED_YELLOW ? analogRead(POTENTIOMETER) / 4 : 0 );
-  analogWrite(LED_RED,    ledPin == LED_RED ?    analogRead(POTENTIOMETER) / 4 : 0 );
+  analogWrite(LED_GREEN,  ledPin==LED_GREEN  || ledPin==LED_ALL ? analogRead(POTENTIOMETER) / 4 : 0 );
+  analogWrite(LED_BLUE,   ledPin==LED_BLUE   || ledPin==LED_ALL ? analogRead(POTENTIOMETER) / 4 : 0 );
+  analogWrite(LED_YELLOW, ledPin==LED_YELLOW || ledPin==LED_ALL ? analogRead(POTENTIOMETER) / 4 : 0 );
+  analogWrite(LED_RED,    ledPin==LED_RED    || ledPin==LED_ALL ? analogRead(POTENTIOMETER) / 4 : 0 );
 }
 
-void mapPotToLEDs() {
+void animateLEDs() {
   if( !LEDsRunning ) {
-    digitalWrite(LED_GREEN,  0 );
-    digitalWrite(LED_BLUE,   0 );
-    digitalWrite(LED_YELLOW, 0 );
-    digitalWrite(LED_RED,    0 );
+    switchToLED(LED_NONE);
     return;
   }
   static int prevPhase = 0;
@@ -116,10 +118,7 @@ void mapPotToLEDs() {
       switchToLED(LED_RED);
       break;
     default:
-      analogWrite(LED_BLUE, analogRead(POTENTIOMETER) / 4 );
-      analogWrite(LED_GREEN, analogRead(POTENTIOMETER) / 4 );   
-      analogWrite(LED_YELLOW, analogRead(POTENTIOMETER) / 4 );
-      analogWrite(LED_RED, analogRead(POTENTIOMETER) / 4 );
+      switchToLED(LED_ALL);
   }
 }
 
