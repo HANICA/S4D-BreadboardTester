@@ -99,9 +99,6 @@ void playTone(int frequency, int duration) {
     delay(duration);
   } else {
     long wavePeriodInMicroSecs = 1.0 / frequency * 1000 * 1000;
-    Serial.print("freq: "); Serial.println( frequency );
-    Serial.print("period: "); Serial.println( wavePeriodInMicroSecs ); 
-    Serial.print("half-period: "); Serial.println( wavePeriodInMicroSecs / 2 ); 
     const long pauseDuration = 10000;
     for (long i = 0; i < duration * 1000L - pauseDuration; i += wavePeriodInMicroSecs) {
       digitalWrite(BUZZER, HIGH);

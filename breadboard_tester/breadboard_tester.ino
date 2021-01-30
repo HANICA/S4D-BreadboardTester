@@ -38,10 +38,11 @@ void loop() {
 }
 
 void printSensorsToSerial() {
-  Serial.print("potm: "); print4chars( analogRead(POTENTIOMETER) ); Serial.print( ", " );
-  Serial.print("but1: "); Serial.print( digitalRead(BUTTON1) );     Serial.print( ", " );
-  Serial.print("but2: "); Serial.print( digitalRead(BUTTON2) );     Serial.print( ", " );
-  Serial.print("magn: "); print4chars( analogRead(MAGNETSENSOR) );  Serial.println();
+  Serial.print("potmeter: "); print4chars( analogRead(POTENTIOMETER) );                       Serial.print( ", " );
+  Serial.print("button-1: "); Serial.print( digitalRead(BUTTON1) == HIGH ? "HIGH" : "LOW " ); Serial.print( ", " );
+  Serial.print("button-2: "); Serial.print( digitalRead(BUTTON2) == HIGH ? "HIGH" : "LOW " ); Serial.print( ", " );
+  Serial.print("magnet-sensor: "); print4chars( analogRead(MAGNETSENSOR) );                   Serial.println();
+  delay(50);
 }
 
 void print4chars(int value) {
@@ -62,21 +63,24 @@ int showButtonStates() {
   if( areBothButtonsPressed() ) {
     playTone(NOTE_G ,20);
     OLED.print("Both buttons");
-    Serial.println("Both buttons pressed.");
     delay(20);
     // wait for any button release
-    while( areBothButtonsPressed() ) { /* do nothing */ }
-    playTone(NOTE_E ,20);
+    while( areBothButtonsPressed() ) { 
+      /* do nothing except: */ 
+      printSensorsToSerial();
+    }
   }
   else if( isPressed(BUTTON1) ) {
     playTone(NOTE_G, 20);
     LEDsRunning = true;
     animateLEDs();
     OLED.print("LEDs on");
-    Serial.println("First button pressed.");
     delay(20);
     // wait for button 1 release
-    while( isPressed(BUTTON1) ) { /* do nothing */ }
+    while( isPressed(BUTTON1) ) { 
+      /* do nothing except: */ 
+      printSensorsToSerial();
+    }
     playTone(NOTE_C ,20);
   }
   else if( isPressed(BUTTON2) ) {
@@ -84,10 +88,12 @@ int showButtonStates() {
     LEDsRunning = false;
     OLED.print("LEDs off");
     animateLEDs();
-    Serial.println("Second button pressed.");
     delay(20);
     // wait for button 2 release
-    while( isPressed(BUTTON2) ) { /* do nothing */ }
+    while( isPressed(BUTTON2) ) { 
+      /* do nothing except: */ 
+      printSensorsToSerial();
+    }
     playTone(NOTE_C ,20);
   }
 }
