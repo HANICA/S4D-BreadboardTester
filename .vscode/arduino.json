@@ -1,5 +1,0 @@
-{
-    "board": "arduino:avr:uno",
-    "port": "/dev/tty.usbserial-144310",
-    "sketch": "breadboard_tester/breadboard_tester.ino"
-}
