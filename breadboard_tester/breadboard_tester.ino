@@ -12,6 +12,13 @@
 
 #include "s4d_breadboard.h"
 
+// frequencies of musical notes taken from: https://pages.mtu.edu/~suits/notefreqs.html
+const int REST = 0; 
+const int NOTE_G_low = 196; 
+const int NOTE_C = 262;
+const int NOTE_E = 330;
+const int NOTE_G = 392;
+
 bool LEDsRunning = false;
 
 void setup() {
@@ -50,36 +57,49 @@ void showSensorValues() {
   OLED.printBottom("magnet sensor:", analogRead(MAGNETSENSOR));
 }
 
+
 int showButtonStates() {
-  if (testButton(BUTTON1) && testButton(BUTTON2)) {
-    playTone(440,30);
+  if( areBothButtonsPressed() ) {
+    playTone(NOTE_G ,20);
     OLED.print("Both buttons");
     Serial.println("Both buttons pressed.");
     delay(20);
     // wait for any button release
-    while(testButton(BUTTON1) && testButton(BUTTON2)) {}
+    while( areBothButtonsPressed() ) { /* do nothing */ }
+    playTone(NOTE_E ,20);
   }
-  else if (testButton(BUTTON1)) {
-    playTone(440,30);
+  else if( isPressed(BUTTON1) ) {
+    playTone(NOTE_G, 20);
     LEDsRunning = true;
     animateLEDs();
     OLED.print("LEDs on");
     Serial.println("First button pressed.");
     delay(20);
     // wait for button 1 release
-    while(testButton(BUTTON1)) {}
+    while( isPressed(BUTTON1) ) { /* do nothing */ }
+    playTone(NOTE_C ,20);
   }
-  else if (testButton(BUTTON2)) {
-    playTone(440,30);
+  else if( isPressed(BUTTON2) ) {
+    playTone(NOTE_G, 20);
     LEDsRunning = false;
     OLED.print("LEDs off");
     animateLEDs();
     Serial.println("Second button pressed.");
     delay(20);
     // wait for button 2 release
-    while(testButton(BUTTON2)) {}
+    while( isPressed(BUTTON2) ) { /* do nothing */ }
+    playTone(NOTE_C ,20);
   }
 }
+
+bool isPressed(int buttonPin) {
+  return digitalRead(buttonPin) == HIGH;
+}
+
+bool areBothButtonsPressed() {
+  return isPressed(BUTTON1) && isPressed(BUTTON2);
+}
+
 
 const int LED_ALL  = 100;
 const int LED_NONE = 101;
@@ -122,26 +142,14 @@ void animateLEDs() {
   }
 }
 
-int testButton(int buttonPin) {
-  int status = digitalRead(buttonPin);
-  return status;
-}
-
-// frequencies of musical notes taken from: https://pages.mtu.edu/~suits/notefreqs.html
-const int REST = 0; 
-const int TONE_G_low = 196; 
-const int TONE_C = 262;
-const int TONE_E = 330;
-const int TONE_G = 392;
-
 void simpleMelody() {
-  playTone( TONE_G_low, 120 );
+  playTone( NOTE_G_low, 120 );
   playTone( REST,        30 );
-  playTone( TONE_C,     120 );
+  playTone( NOTE_C,     120 );
   playTone( REST,        30 );
-  playTone( TONE_E,     150 );
-  playTone( TONE_G,     300 );
+  playTone( NOTE_E,     150 );
+  playTone( NOTE_G,     300 );
   playTone( REST,        30 );
-  playTone( TONE_E,     120 );
-  playTone( TONE_G,     750 );
+  playTone( NOTE_E,     120 );
+  playTone( NOTE_G,     750 );
 }
