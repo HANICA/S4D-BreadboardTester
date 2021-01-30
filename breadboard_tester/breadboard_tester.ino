@@ -24,10 +24,14 @@ bool LEDsRunning = false;
 void setup() {
   initializeBreadboard();
   Serial.println("setup");
-  OLED.print("Setup");
-  delay(300);
+  OLED.print("running \"setup\"");
+  delay(750);
+  OLED.printTop("Press button 1 to");
+  OLED.printBottom("turn LEDs on.");
   simpleMelody();
-  delay(300);
+  delay(200);
+  OLED.print("starting \"loop\"");
+  delay(750);
 }
 
 void loop() {
