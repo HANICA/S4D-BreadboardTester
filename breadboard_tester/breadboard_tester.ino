@@ -128,14 +128,21 @@ int testButton(int buttonPin) {
   return status;
 }
 
+// frequencies of musical notes taken from: https://pages.mtu.edu/~suits/notefreqs.html
+const int REST = 0; 
+const int TONE_G_low = 196; 
 const int TONE_C = 262;
 const int TONE_E = 330;
 const int TONE_G = 392;
 
 void simpleMelody() {
-  playTone( TONE_C,   100 ); // play middle-C for 100 milliseconds;
-  playTone( TONE_E,   100 ); // play E for 100 milliseconds;
-  playTone( TONE_G,   100 ); // play G for 100 milliseconds;
-  playTone( TONE_E,   100 ); // play E for 100 milliseconds;
-  playTone( TONE_C,   200 ); // play C for 200 milliseconds;
+  playTone( TONE_G_low, 120 );
+  playTone( REST,        30 );
+  playTone( TONE_C,     120 );
+  playTone( REST,        30 );
+  playTone( TONE_E,     150 );
+  playTone( TONE_G,     300 );
+  playTone( REST,        30 );
+  playTone( TONE_E,     120 );
+  playTone( TONE_G,     750 );
 }
