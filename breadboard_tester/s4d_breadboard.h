@@ -79,6 +79,43 @@ void initializeBreadboard() {
 /* * * * * * * * * * * * * * * * * * *
 
   The code below creates the following
+  command:
+
+  playTone( frequency, duration )   // Play a tone on the buzzer. 
+                                    // The frequency detemines how high the tone wil sound.
+                                    //    A frequency of 0 produces silence.
+                                    //    See https://pages.mtu.edu/~suits/notefreqs.html for 
+                                    //    frequencies of musical notes.
+                                    // Duration specifies the how long the note will sound (in
+                                    //    milliseconds).
+                                    // In contrast to the tone() function in Arduino library, this 
+                                    //    function does not interfere with PWM on digital pins. But 
+                                    //    it will only return after the duretion is complete, like delay().
+    
+* * * * * * * * * * * * * * * * * * */
+
+void playTone(int frequency, int duration) {
+  if(frequency == 0) {  // PAUSE
+    delay(duration);
+  } else {
+    long wavePeriodInMicroSecs = 1.0 / frequency * 1000 * 1000;
+    Serial.print("freq: "); Serial.println( frequency );
+    Serial.print("period: "); Serial.println( wavePeriodInMicroSecs ); 
+    Serial.print("half-period: "); Serial.println( wavePeriodInMicroSecs / 2 ); 
+    const long pauseDuration = 10000;
+    for (long i = 0; i < duration * 1000L - pauseDuration; i += wavePeriodInMicroSecs) {
+      digitalWrite(BUZZER, HIGH);
+      delayMicroseconds(wavePeriodInMicroSecs / 2);
+      digitalWrite(BUZZER, LOW);
+      delayMicroseconds(wavePeriodInMicroSecs / 2);
+    }
+    delayMicroseconds(pauseDuration);  // very short pause so the listener can tell notes apart.
+  }
+}
+
+/* * * * * * * * * * * * * * * * * * *
+
+  The code below creates the following
   commands:
     
     OLED.clear()                      // Removes all pixels from the screen.
