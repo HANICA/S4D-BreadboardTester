@@ -52,7 +52,7 @@ void showSensorValues() {
 
 int showButtonStates() {
   if (testButton(BUTTON1) && testButton(BUTTON2)) {
-    buzzerTest(30,1000);
+    playTone(440,30);
     OLED.print("Both buttons");
     Serial.println("Both buttons pressed.");
     delay(20);
@@ -60,7 +60,7 @@ int showButtonStates() {
     while(testButton(BUTTON1) && testButton(BUTTON2)) {}
   }
   else if (testButton(BUTTON1)) {
-    buzzerTest(30,1000);
+    playTone(440,30);
     LEDsRunning = true;
     OLED.print("LEDs on");
     Serial.println("First button pressed.");
@@ -69,7 +69,7 @@ int showButtonStates() {
     while(testButton(BUTTON1)) {}
   }
   else if (testButton(BUTTON2)) {
-    buzzerTest(30,1000);
+    playTone(440,30);
     LEDsRunning = false;
     OLED.print("LEDs off");
     Serial.println("Second button pressed.");
@@ -123,39 +123,19 @@ void mapPotToLEDs() {
   }
 }
 
-void buzzerTest(int duration, int tone) {
-  Serial.println("Buzzer...");
-  for (int i = 0; i < duration; i++) {
-    digitalWrite(BUZZER, HIGH);
-    delayMicroseconds(tone);
-    digitalWrite(BUZZER, LOW);
-    delayMicroseconds(tone);
-  }
-}
-
 int testButton(int buttonPin) {
   int status = digitalRead(buttonPin);
   return status;
 }
 
-void playTone(int tone, int duration) {
-  if(tone == 0) {  // PAUSE
-    delay(duration);
-  } else {
-    for (long i = 0; i < duration * 1000L - 10000; i += tone * 2) {
-      digitalWrite(BUZZER, HIGH);
-      delayMicroseconds(tone);
-      digitalWrite(BUZZER, LOW);
-      delayMicroseconds(tone);
-    }
-    delayMicroseconds(10000);  // very short pause so the listener can tell notes apart.
-  }
-}
+const int TONE_C = 262;
+const int TONE_E = 330;
+const int TONE_G = 392;
 
 void simpleMelody() {
-  playTone( 1911,   100 ); // play middle-C for 100 milliseconds;
-  playTone( 1517,   100 ); // play E for 100 milliseconds;
-  playTone( 1276,   100 ); // play G for 100 milliseconds;
-  playTone( 1517,   100 ); // play E for 100 milliseconds;
-  playTone( 1911,   200 ); // play C for 200 milliseconds;
+  playTone( TONE_C,   100 ); // play middle-C for 100 milliseconds;
+  playTone( TONE_E,   100 ); // play E for 100 milliseconds;
+  playTone( TONE_G,   100 ); // play G for 100 milliseconds;
+  playTone( TONE_E,   100 ); // play E for 100 milliseconds;
+  playTone( TONE_C,   200 ); // play C for 200 milliseconds;
 }
