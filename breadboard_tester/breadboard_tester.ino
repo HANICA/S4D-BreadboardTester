@@ -12,36 +12,44 @@
 
 #include "s4d_breadboard.h"
 
-int buttonThatWasLastTouched = 3;
+// frequencies of musical notes taken from: https://pages.mtu.edu/~suits/notefreqs.html
+const int REST = 0; 
+const int NOTE_G_low = 196; 
+const int NOTE_C = 262;
+const int NOTE_E = 330;
+const int NOTE_G = 392;
+
+bool LEDsRunning = false;
 
 void setup() {
   Serial.begin(9600);
   Serial.println("setup");
 
   initializeBreadboard();
-
+  Serial.println("setup");
+  OLED.print("running \"setup\"");
+  delay(750);
+  OLED.printTop("Press button 1 to");
+  OLED.printBottom("turn LEDs on.");
   simpleMelody();
+  delay(200);
+  OLED.print("starting \"loop\"");
+  delay(750);
 }
 
 void loop() {
-  int currentButton = theButtonThatWasTouched();
-  if (currentButton != -1) {
-    buzzerTest(30,1000);
-    writeCurrentSensorType(currentButton);
-    buttonThatWasLastTouched = currentButton;
-  }
-  performActionBasedOn(buttonThatWasLastTouched);
-  mapPotToLEDBrightness();
+  showButtonStates();
+  showSensorValues();
+  animateLEDs();
   printSensorsToSerial();
 }
 
 void printSensorsToSerial() {
-  Serial.print("pm: "); print4chars( analogRead(POTENTIOMETER) ); Serial.print( ", " );
-  Serial.print("b1: "); Serial.print( digitalRead(BUTTON1) ); Serial.print( ", " );
-  Serial.print("b2: "); Serial.print( digitalRead(BUTTON2) ); Serial.print( ", " );
-  Serial.print("ls: "); print4chars( analogRead(LIGHTSENSOR) ); Serial.print( ", " );
-  Serial.print("vs: "); print4chars( analogRead(VOLUMESENSOR) ); Serial.print( ", " );
-  Serial.print("ms: "); print4chars( analogRead(MAGNETSENSOR) ); Serial.println();
+  Serial.print("potmeter: "); print4chars( analogRead(POTENTIOMETER) );                       Serial.print( ", " );
+  Serial.print("button-1: "); Serial.print( digitalRead(BUTTON1) == HIGH ? "HIGH" : "LOW " ); Serial.print( ", " );
+  Serial.print("button-2: "); Serial.print( digitalRead(BUTTON2) == HIGH ? "HIGH" : "LOW " ); Serial.print( ", " );
+  Serial.print("magnet-sensor: "); print4chars( analogRead(MAGNETSENSOR) );                   Serial.println();
+  delay(50);
 }
 
 void print4chars(int value) {
@@ -69,44 +77,74 @@ void performActionBasedOn(int button) {
   }
 }
 
-void writeCurrentSensorType(int button) {
-  switch (button) {
-    case 0:
-      OLED.print("Volume sensor");
-      break;
-    case 1:
-      OLED.print("Light sensor");
-      break;
-    case 3:
-      OLED.print("Magnet sensor");
-      break;
-  }
-  delay(300);
-}
 
-// Returns a number corresponding with the button that was touched.
-// 0 = left, 1 = middle, 2 = right, -1 on no touch
-int theButtonThatWasTouched() {
-  int buttonTouched = -1;
-  if (testButton(BUTTON2) == 1 && testButton(BUTTON1) == 1) {
-    Serial.println("both were Pressed");
-    buttonTouched = 1;
+int showButtonStates() {
+  if( areBothButtonsPressed() ) {
+    playTone(NOTE_G ,20);
+    OLED.print("Both buttons");
+    delay(20);
+    // wait for any button release
+    while( areBothButtonsPressed() ) { 
+      /* do nothing except: */ 
+      printSensorsToSerial();
+    }
   }
-  else if (testButton(BUTTON1) == 1) {
-    Serial.println("first button Pressed");
-    buttonTouched = 0;
+  else if( isPressed(BUTTON1) ) {
+    playTone(NOTE_G, 20);
+    LEDsRunning = true;
+    animateLEDs();
+    OLED.print("LEDs on");
+    delay(20);
+    // wait for button 1 release
+    while( isPressed(BUTTON1) ) { 
+      /* do nothing except: */ 
+      printSensorsToSerial();
+    }
+    playTone(NOTE_C ,20);
+  }
+  else if( isPressed(BUTTON2) ) {
+    playTone(NOTE_G, 20);
+    LEDsRunning = false;
+    OLED.print("LEDs off");
+    animateLEDs();
+    delay(20);
+    // wait for button 2 release
+    while( isPressed(BUTTON2) ) { 
+      /* do nothing except: */ 
+      printSensorsToSerial();
+    }
+    playTone(NOTE_C ,20);
   }
   else if (testButton(BUTTON2) == 1) {
     Serial.println("second button Pressed");
     buttonTouched = 3;
   }
 
-  return buttonTouched;
+bool isPressed(int buttonPin) {
+  return digitalRead(buttonPin) == HIGH;
 }
 
-// Adjusts the brightness of the LED based on the potentiometer
-int prevPhase = 0;
-void mapPotToLEDBrightness() {
+bool areBothButtonsPressed() {
+  return isPressed(BUTTON1) && isPressed(BUTTON2);
+}
+
+
+const int LED_ALL  = 100;
+const int LED_NONE = 101;
+
+void switchToLED( int ledPin ) {
+  analogWrite(LED_GREEN,  ledPin==LED_GREEN  || ledPin==LED_ALL ? analogRead(POTENTIOMETER) / 4 : 0 );
+  analogWrite(LED_BLUE,   ledPin==LED_BLUE   || ledPin==LED_ALL ? analogRead(POTENTIOMETER) / 4 : 0 );
+  analogWrite(LED_YELLOW, ledPin==LED_YELLOW || ledPin==LED_ALL ? analogRead(POTENTIOMETER) / 4 : 0 );
+  analogWrite(LED_RED,    ledPin==LED_RED    || ledPin==LED_ALL ? analogRead(POTENTIOMETER) / 4 : 0 );
+}
+
+void animateLEDs() {
+  if( !LEDsRunning ) {
+    switchToLED(LED_NONE);
+    return;
+  }
+  static int prevPhase = 0;
   long phase = (millis() / 150) % 6;
   if( phase == prevPhase ) {
     return;
@@ -140,51 +178,18 @@ void mapPotToLEDBrightness() {
       analogWrite(LED_RED, analogRead(POTENTIOMETER) / 4 );
       break;
     default:
-      analogWrite(LED_BLUE, analogRead(POTENTIOMETER) / 4 );
-      analogWrite(LED_GREEN, analogRead(POTENTIOMETER) / 4 );   
-      analogWrite(LED_YELLOW, analogRead(POTENTIOMETER) / 4 );
-      analogWrite(LED_RED, analogRead(POTENTIOMETER) / 4 );
-  }
-}
-
-// Procedure to test the buzzer
-// duration in milliseconds
-void buzzerTest(int duration, int tone) {
-  Serial.println("Buzzer...");
-  for (int i = 0; i < duration; i++) {
-    digitalWrite(BUZZER, HIGH);
-    delayMicroseconds(tone);
-    digitalWrite(BUZZER, LOW);
-    delayMicroseconds(tone);
-  }
-}
-
-// Function that returns the status of a button
-int testButton(int buttonPin) {
-  int status = digitalRead(buttonPin);
-  return status;
-}
-
-void playTone(int tone, int duration) {
-  if(tone == 0) {  // PAUSE
-    delay(duration);
-    Serial.print("pause!");
-    Serial.println(duration);
-  } else {
-    for (long i = 0; i < duration * 1000L - 10000; i += tone * 2) {
-      digitalWrite(BUZZER, HIGH);
-      delayMicroseconds(tone);
-      digitalWrite(BUZZER, LOW);
-      delayMicroseconds(tone);
-    }
-    delayMicroseconds(10000);  // very short pause so the listener can tell notes apart.
+      switchToLED(LED_ALL);
   }
 }
 
 void simpleMelody() {
-  playTone( 1911,   100 ); // play middle-C for 100 milliseconds;
-  playTone( 1517,   100 ); // play E for 100 milliseconds;
-  playTone( 1276,   100 ); // play G for 100 milliseconds;
-  playTone( 1517,   100 ); // play E for 100 milliseconds;
-  playTone( 1911,   200 ); // play C for 200 milliseconds;
+  playTone( NOTE_G_low, 120 );
+  playTone( REST,        30 );
+  playTone( NOTE_C,     120 );
+  playTone( REST,        30 );
+  playTone( NOTE_E,     150 );
+  playTone( NOTE_G,     300 );
+  playTone( REST,        30 );
+  playTone( NOTE_E,     120 );
+  playTone( NOTE_G,     750 );
 }
