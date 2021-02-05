@@ -44,6 +44,11 @@ void loop() {
   printSensorsToSerial();
 }
 
+void showSensorValues() {
+  OLED.printTop("potentiometer:", analogRead(POTENTIOMETER));
+  OLED.printBottom("magnet sensor:", analogRead(MAGNETSENSOR));
+}
+
 void printSensorsToSerial() {
   Serial.print("potmeter: "); print4chars( analogRead(POTENTIOMETER) );                       Serial.print( ", " );
   Serial.print("button-1: "); Serial.print( digitalRead(BUTTON1) == HIGH ? "HIGH" : "LOW " ); Serial.print( ", " );
@@ -76,7 +81,6 @@ void performActionBasedOn(int button) {
       break;
   }
 }
-
 
 int showButtonStates() {
   if( areBothButtonsPressed() ) {
@@ -115,10 +119,7 @@ int showButtonStates() {
     }
     playTone(NOTE_C ,20);
   }
-  else if (testButton(BUTTON2) == 1) {
-    Serial.println("second button Pressed");
-    buttonTouched = 3;
-  }
+}
 
 bool isPressed(int buttonPin) {
   return digitalRead(buttonPin) == HIGH;
