@@ -22,9 +22,6 @@ const int NOTE_G = 392;
 bool LEDsRunning = false;
 
 void setup() {
-  Serial.begin(9600);
-  Serial.println("setup");
-
   initializeBreadboard();
   Serial.println("setup");
   OLED.print("running \"setup\"");
@@ -63,23 +60,6 @@ void print4chars(int value) {
   if(value < 100)  { Serial.print(" "); } 
   if(value < 1000) { Serial.print(" "); } 
   Serial.print(result);
-}
-
-
-
-// Maps actions to buttons (not pinnumbers!)
-void performActionBasedOn(int button) {
-  switch (button) {
-    case 0:
-      OLED.print("volume", VolumeSensor.read());
-      break;
-    case 1:
-      OLED.print("light", analogRead(LIGHTSENSOR));
-      break;
-    case 3:
-      OLED.print("magnet", analogRead(MAGNETSENSOR));
-      break;
-  }
 }
 
 int showButtonStates() {
