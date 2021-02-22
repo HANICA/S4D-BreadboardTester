@@ -2,11 +2,8 @@
     
   How to test the breadboard:
 
-  - turn the potmeter to dim the LEDs
-  - press buttons to change the sensor 
-    whose values are shown on the display:
-  - press both buttons to set the sensor 
-    to the magnet sensor.
+  - Press buttons to turn the LEDs on or off.
+  - Turn the potmeter to dim the LEDs.
 
  * * * * * * * * * * * * * * * * * * * * */
 
@@ -47,10 +44,10 @@ void showSensorValues() {
 }
 
 void printSensorsToSerial() {
-  Serial.print("potmeter: "); print4chars( analogRead(POTENTIOMETER) );                       Serial.print( ", " );
-  Serial.print("button-1: "); Serial.print( digitalRead(BUTTON1) == HIGH ? "HIGH" : "LOW " ); Serial.print( ", " );
-  Serial.print("button-2: "); Serial.print( digitalRead(BUTTON2) == HIGH ? "HIGH" : "LOW " ); Serial.print( ", " );
-  Serial.print("magnet-sensor: "); print4chars( analogRead(MAGNETSENSOR) );                   Serial.println();
+  Serial.print("potmeter: ");      print4chars( analogRead(POTENTIOMETER) );                       Serial.print( ", " );
+  Serial.print("button-1: ");      Serial.print( digitalRead(BUTTON1) == HIGH ? "HIGH" : "LOW " ); Serial.print( ", " );
+  Serial.print("button-2: ");      Serial.print( digitalRead(BUTTON2) == HIGH ? "HIGH" : "LOW " ); Serial.print( ", " );
+  Serial.print("magnet-sensor: "); print4chars( analogRead(MAGNETSENSOR) );                        Serial.println();
   delay(50);
 }
 
@@ -63,12 +60,12 @@ void print4chars(int value) {
 }
 
 int showButtonStates() {
-  if( areBothButtonsPressed() ) {
+  if( bothButtonsPressed() ) {
     playTone(NOTE_G ,20);
     OLED.print("Both buttons");
     delay(20);
     // wait for any button release
-    while( areBothButtonsPressed() ) { 
+    while( bothButtonsPressed() ) { 
       /* do nothing except: */ 
       printSensorsToSerial();
     }
@@ -105,19 +102,19 @@ bool isPressed(int buttonPin) {
   return digitalRead(buttonPin) == HIGH;
 }
 
-bool areBothButtonsPressed() {
+bool bothButtonsPressed() {
   return isPressed(BUTTON1) && isPressed(BUTTON2);
 }
-
 
 const int LED_ALL  = 100;
 const int LED_NONE = 101;
 
 void switchToLED( int ledPin ) {
-  analogWrite(LED_GREEN,  ledPin==LED_GREEN  || ledPin==LED_ALL ? analogRead(POTENTIOMETER) / 4 : 0 );
-  analogWrite(LED_BLUE,   ledPin==LED_BLUE   || ledPin==LED_ALL ? analogRead(POTENTIOMETER) / 4 : 0 );
-  analogWrite(LED_YELLOW, ledPin==LED_YELLOW || ledPin==LED_ALL ? analogRead(POTENTIOMETER) / 4 : 0 );
-  analogWrite(LED_RED,    ledPin==LED_RED    || ledPin==LED_ALL ? analogRead(POTENTIOMETER) / 4 : 0 );
+  int brightness = analogRead(POTENTIOMETER) / 4;
+  analogWrite(LED_GREEN,  ledPin==LED_GREEN  || ledPin==LED_ALL ? brightness : 0 );
+  analogWrite(LED_BLUE,   ledPin==LED_BLUE   || ledPin==LED_ALL ? brightness : 0 );
+  analogWrite(LED_YELLOW, ledPin==LED_YELLOW || ledPin==LED_ALL ? brightness : 0 );
+  analogWrite(LED_RED,    ledPin==LED_RED    || ledPin==LED_ALL ? brightness : 0 );
 }
 
 void animateLEDs() {
@@ -133,30 +130,18 @@ void animateLEDs() {
   prevPhase = phase;
   switch(phase) {
     case 0:
-      analogWrite(LED_BLUE, analogRead(POTENTIOMETER) / 4 );
-      digitalWrite(LED_GREEN, LOW );   
-      digitalWrite(LED_YELLOW, LOW );
-      digitalWrite(LED_RED, LOW );
+      switchToLED( LED_BLUE );
       break;
     case 1:
     case 5:
-      digitalWrite(LED_BLUE, LOW );
-      analogWrite(LED_GREEN, analogRead(POTENTIOMETER) / 4 );   
-      digitalWrite(LED_YELLOW, LOW );
-      digitalWrite(LED_RED, LOW );
+      switchToLED( LED_GREEN );
       break;
     case 2:
     case 4:
-      digitalWrite(LED_BLUE, LOW );
-      digitalWrite(LED_GREEN, LOW );   
-      analogWrite(LED_YELLOW, analogRead(POTENTIOMETER) / 4 );
-      digitalWrite(LED_RED, LOW );
+      switchToLED( LED_YELLOW );
       break;
     case 3:
-      digitalWrite(LED_BLUE, LOW );
-      digitalWrite(LED_GREEN, LOW );   
-      digitalWrite(LED_YELLOW, LOW );
-      analogWrite(LED_RED, analogRead(POTENTIOMETER) / 4 );
+      switchToLED( LED_RED );
       break;
     default:
       switchToLED(LED_ALL);
