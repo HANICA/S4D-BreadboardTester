@@ -1,4 +1,4 @@
-/* * * * * * * * * * * * * * * * * * * * *
+ /* * * * * * * * * * * * * * * * * * * * *
     
   How to test the breadboard:
 
@@ -44,10 +44,14 @@ void showSensorValues() {
 }
 
 void printSensorsToSerial() {
-  Serial.print("potmeter: ");      print4chars( analogRead(POTENTIOMETER) );                       Serial.print( ", " );
-  Serial.print("button-1: ");      Serial.print( digitalRead(BUTTON1) == HIGH ? "HIGH" : "LOW " ); Serial.print( ", " );
-  Serial.print("button-2: ");      Serial.print( digitalRead(BUTTON2) == HIGH ? "HIGH" : "LOW " ); Serial.print( ", " );
-  Serial.print("magnet-sensor: "); print4chars( analogRead(MAGNETSENSOR) );                        Serial.println();
+  // SL, 2023-02-13
+  //  Removed spaces to make output Arduino IDE – Serial Plotter compatible.
+  //  See: https://www.diyrobocars.com/2020/05/04/arduino-serial-plotter-the-missing-manual/
+
+  Serial.print("button-1:");      Serial.print( digitalRead(BUTTON1) /* == HIGH ? "HIGH" : "LOW" */); Serial.print( "\t" );
+  Serial.print("button-2:");      Serial.print( digitalRead(BUTTON2) /* == HIGH ? "HIGH" : "LOW" */); Serial.print( "\t" );
+  Serial.print("potmeter:");      Serial.print( analogRead(POTENTIOMETER) );                          Serial.print( "\t" );
+  Serial.print("magnet-sensor:"); Serial.print( analogRead(MAGNETSENSOR) );                           Serial.println();
   delay(50);
 }
 
@@ -59,7 +63,7 @@ void print4chars(int value) {
   Serial.print(result);
 }
 
-int showButtonStates() {
+void showButtonStates() {
   if( bothButtonsPressed() ) {
     playTone(NOTE_G ,20);
     OLED.print("Both buttons");
@@ -111,6 +115,9 @@ const int LED_NONE = 101;
 
 void switchToLED( int ledPin ) {
   int brightness = analogRead(POTENTIOMETER) / 4;
+  // SL, 2023-02-13: keep minimum brightness, otherwise leds may seem to fail
+  brightness = max(brightness, 127);
+
   analogWrite(LED_GREEN,  ledPin==LED_GREEN  || ledPin==LED_ALL ? brightness : 0 );
   analogWrite(LED_BLUE,   ledPin==LED_BLUE   || ledPin==LED_ALL ? brightness : 0 );
   analogWrite(LED_YELLOW, ledPin==LED_YELLOW || ledPin==LED_ALL ? brightness : 0 );
