@@ -195,14 +195,16 @@ class OledClass {
       Serial.println("+");
       Serial.print("| ");
       Serial.print( lastLines[0] );
-      for(int i=0;i<boxLength-lastLines[0].length()-1;i++) {
+      // SL, 2023-02-13: add a `int()` cast, to avoid signed and unsigned comparison
+      for(int i=0;i<boxLength-int(lastLines[0].length())-1;i++) {
         Serial.print(' ');
       }
       Serial.println("|");
       if( lastPrintWasSmall ) {
         Serial.print("| ");
         Serial.print( lastLines[1] );
-        for(int i=0;i<boxLength-lastLines[1].length()-1;i++) {
+        // SL, 2023-02-13: add a `int()` cast, to avoid signed and unsigned comparison
+        for(int i=0;i<boxLength-int(lastLines[1].length())-1;i++) {
           Serial.print(' ');
         }
         Serial.println("|");
