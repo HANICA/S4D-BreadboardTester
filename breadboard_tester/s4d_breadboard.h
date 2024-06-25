@@ -1,8 +1,11 @@
 /*
- * s4d_breadboard_v2.h
+ * s4d_breadboard.h (version 2)
  *
  *  Created on: Jun 25, 2024
  *      Author: Robert Holwerda and Richard Holleman
+ *
+ * Tinkercad simulation: 
+ * https://www.tinkercad.com/things/eoHfKiasR1K-s4dburglaralarm?sharecode=AH6GbTkaFOrM_TRtSoeWbVqw3I90Ue0OO3toiXLDg-4
  */
 
 //#define SIMULATION
