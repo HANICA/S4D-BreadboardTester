@@ -1,12 +1,25 @@
+/*
+ * s4d_breadboard_v2.h
+ *
+ *  Created on: Jun 25, 2024
+ *      Author: Robert Holwerda and Richard Holleman
+ */
+
+//#define SIMULATION
+
 #ifndef S4D_BREADBOARD_H
 #define S4D_BREADBOARD_H
 
-#include <Arduino.h>
+#ifdef SIMULATION
+#define NO_OLED
+#define NO_VOLUMESENSOR
+#endif
 
 #ifndef NO_OLED         
 #include <U8g2lib.h>
 void initializeOLED();
 #endif
+
 
 /* * * * * * * * * * * * * * * * * * *
    
@@ -379,7 +392,6 @@ void initializeOLED() {
   
  * * * * * * * * * * * * * * * * * * */
 
-
 class VolumeSensorClass {
 
   public:
@@ -404,12 +416,20 @@ class VolumeSensorClass {
 
     //Method returns volume. 
     int read() {
+#ifdef NO_VOLUMESENSOR
+      int sensorValue = analogRead(VOLUMESENSOR);
+      if(sensorValue != 0){
+        return sensorValue;
+      }
+#else
       analogReference(EXTERNAL);
       int averageDB = getAverageDB();
       if (averageDB != 0) {
         analogReference(INTERNAL);
         return averageDB;
-      } else {
+      } 
+#endif      
+      else {
         return read();
       }
     }
@@ -419,3 +439,4 @@ VolumeSensorClass VolumeSensor;
 
 
 #endif // S4D_BREADBOARD_H
+
