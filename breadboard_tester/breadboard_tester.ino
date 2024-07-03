@@ -48,8 +48,8 @@ void printSensorsToSerial() {
   //  Removed spaces to make output Arduino IDE – Serial Plotter compatible.
   //  See: https://www.diyrobocars.com/2020/05/04/arduino-serial-plotter-the-missing-manual/
 
-  Serial.print("button-1:");      Serial.print( digitalRead(BUTTON1) /* == HIGH ? "HIGH" : "LOW" */); Serial.print( "\t" );
-  Serial.print("button-2:");      Serial.print( digitalRead(BUTTON2) /* == HIGH ? "HIGH" : "LOW" */); Serial.print( "\t" );
+  Serial.print("button-1:");      Serial.print( Button.button1Pressed() /* == HIGH ? "HIGH" : "LOW" */); Serial.print( "\t" );
+  Serial.print("button-2:");      Serial.print( Button.button2Pressed() /* == HIGH ? "HIGH" : "LOW" */); Serial.print( "\t" );
   Serial.print("potmeter:");      Serial.print( analogRead(POTENTIOMETER) );                          Serial.print( "\t" );
   Serial.print("magnet-sensor:"); Serial.print( analogRead(MAGNETSENSOR) );                           Serial.println();
   delay(50);
@@ -74,27 +74,27 @@ void showButtonStates() {
       printSensorsToSerial();
     }
   }
-  else if( isPressed(BUTTON1) ) {
+  else if( isPressed(1) ) {
     playTone(NOTE_G, 20);
     LEDsRunning = true;
     animateLEDs();
     OLED.print("LEDs on");
     delay(20);
     // wait for button 1 release
-    while( isPressed(BUTTON1) ) { 
+    while( isPressed(1) ) { 
       /* do nothing except: */ 
       printSensorsToSerial();
     }
     playTone(NOTE_C ,20);
   }
-  else if( isPressed(BUTTON2) ) {
+  else if( isPressed(2) ) {
     playTone(NOTE_G, 20);
     LEDsRunning = false;
     OLED.print("LEDs off");
     animateLEDs();
     delay(20);
     // wait for button 2 release
-    while( isPressed(BUTTON2) ) { 
+    while( isPressed(2) ) { 
       /* do nothing except: */ 
       printSensorsToSerial();
     }
@@ -103,11 +103,26 @@ void showButtonStates() {
 }
 
 bool isPressed(int buttonPin) {
-  return digitalRead(buttonPin) == HIGH;
+  bool pressed = false;
+  if(buttonPin == 1){
+    if(Button.button1Pressed() == 1){
+      pressed = true;
+    }
+  }
+  else{
+    if(Button.button2Pressed() == 1){
+      pressed = true;
+    }
+  }
+  return pressed;
 }
 
 bool bothButtonsPressed() {
-  return isPressed(BUTTON1) && isPressed(BUTTON2);
+  bool pressed = false;
+  if(Button.button1Pressed() == 1 && Button.button2Pressed() == 1){
+    pressed = true;
+  }
+  return pressed;
 }
 
 const int LED_ALL  = 100;
