@@ -34,9 +34,9 @@ void initializeOLED();
  * * * * * * * * * * * * * * * * * * */
 
 #ifdef HW_VERSION2
-const int MAGNETSENSOR = 0;   // analog input
-const int POTENTIOMETER = 3;  // analog input
-const int LIGHTSENSOR = 1;    // analog input
+const int MAGNETSENSOR = A0;   // analog input
+const int POTENTIOMETER = A3;  // analog input
+const int LIGHTSENSOR = A1;    // analog input
 
 const int BUZZER = 10;  // digital output
 
@@ -45,9 +45,9 @@ const int LED_GREEN = 5;    // analog and digital output
 const int LED_YELLOW = 11;  // analog and digital output
 const int LED_RED = 3;      // analog and digital output
 #else
-const int MAGNETSENSOR = 1;   // analog input
-const int POTENTIOMETER = 2;  // analog input
-const int LIGHTSENSOR = 3;    // analog input
+const int MAGNETSENSOR = A1;   // analog input
+const int POTENTIOMETER = A2;  // analog input
+const int LIGHTSENSOR = A3;    // analog input
 
 const int BUZZER = 6;  // digital output
 
