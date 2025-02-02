@@ -6,7 +6,7 @@
  */
 
 //#define SIMULATION
-//#define HW_VERSION2
+#define HW_VERSION2
 
 #ifndef S4D_BREADBOARD_H
 #define S4D_BREADBOARD_H
