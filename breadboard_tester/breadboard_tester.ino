@@ -18,6 +18,17 @@ const int NOTE_G = 392;
 
 bool LEDsRunning = false;
 
+void showSensorValues();
+void printSensorsToSerial();
+void showButtonStates();
+void animateLEDs();
+void simpleMelody();
+void print4chars(int);
+void buttonPressed();
+bool isPressed(int);
+bool bothButtonsPressed();
+void switchToLED(int);
+
 void setup() {
   initializeBreadboard();
   Serial.println("setup");
