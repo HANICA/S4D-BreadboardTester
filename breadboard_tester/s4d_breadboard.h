@@ -6,7 +6,7 @@
  */
 
 //#define SIMULATION
-#define HW_VERSION2
+//#define HW_VERSION2
 //#define NO_OLED
 
 #ifndef S4D_BREADBOARD_H
@@ -118,7 +118,11 @@ class ButtonClass {
 public:
 
   ButtonClass() {
+#ifdef HW_VERSION2
     pinMode(BUTTON1, INPUT_PULLUP);
+#else
+    pinMode(BUTTON1, INPUT);
+#endif
     pinMode(BUTTON2, INPUT);
   }
 
